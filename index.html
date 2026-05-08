@@ -1,57 +1,48 @@
-
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>Custom Mapbox Map</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dog-Friendly Outdoor Spaces Near UMass Amherst</title>
 
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css" rel="stylesheet" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    body {
+      margin: 0;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
   </style>
 </head>
 
 <body>
-  <div id="map"></div>
 
-  <script>
-    mapboxgl.accessToken = 'YOUR_TOKEN_HERE';
+<div id="map"></div>
 
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-72.53, 42.39], // UMass Amherst
-      zoom: 12
-    });
-map.on('load', () => {
-  map.addSource('groundwater', {
-    type: 'geojson',
-    data: 'Groundwater_Discharge_Points.geojson'
-  });
+<script>
 
-  map.addLayer({
-    id: 'points',
-    type: 'circle',
-    source: 'groundwater',
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#007cbf'
-    }
-  });
+var map = L.map('map').setView([42.3912, -72.5267], 13);
 
-  map.on('click', 'points', (e) => {
-    const coords = e.features[0].geometry.coordinates;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
 
-    new mapboxgl.Popup()
-      .setLngLat(coords)
-      .setText('Groundwater Discharge Point')
-      .addTo(map);
-  });
-});
-  </script>
+L.marker([42.3912, -72.5267]).addTo(map)
+    .bindPopup("UMass Amherst");
+
+L.marker([42.4122, -72.5304]).addTo(map)
+    .bindPopup("Puffers Pond");
+
+L.marker([42.3976, -72.5034]).addTo(map)
+    .bindPopup("Amethyst Brook");
+
+</script>
+
 </body>
 </html>
