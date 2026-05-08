@@ -1,48 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dog-Friendly Outdoor Spaces Near UMass Amherst</title>
-
   <meta charset="utf-8" />
+  <title>Dog-Friendly Outdoor Spaces Near UMass Amherst</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet CSS + JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     #map {
-      height: 100vh;
+      height: 100%;
       width: 100%;
+    }
+
+    .title-box {
+      position: absolute;
+      top: 15px;
+      left: 55px;
+      background: white;
+      padding: 14px 16px;
+      z-index: 1000;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      max-width: 330px;
+    }
+
+    .title-box h1 {
+      font-size: 20px;
+      margin: 0 0 6px 0;
+      line-height: 1.1;
+    }
+
+    .title-box p {
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 25px;
+      left: 15px;
+      background: white;
+      padding: 12px 14px;
+      z-index: 1000;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .legend h3 {
+      margin: 0 0 6px 0;
+      font-size: 15px;
+    }
+
+    .dot {
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .campus { background: #2b7bff; }
+    .park { background: #2ca25f; }
+    .trail { background: #8856a7; }
+    .water { background: #2b8cbe; }
+
+    .popup-title {
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .popup-type {
+      color: #555;
+      font-size: 12px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+  <div class="title-box">
+    <h1>Dog-Friendly Outdoor Spaces Near UMass Amherst</h1>
+    <p>
+      This interactive Leaflet map highlights parks, trails, and outdoor spaces near UMass Amherst
+      that are useful for walking, recreation, and dog-friendly exploring.
+    </p>
+  </div>
 
-<script>
+  <div class="legend">
+    <h3>Map Key</h3>
+    <div><span class="dot campus"></span>Campus / Starting Point</div>
+    <div><span class="dot park"></span>Park or Open Space</div>
+    <div><span class="dot trail"></span>Trail / Conservation Area</div>
+    <div><span class="dot water"></span>Waterfront / Pond Area</div>
+  </div>
 
-var map = L.map('map').setView([42.3912, -72.5267], 13);
+  <div id="map"></div>
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+  <script>
+    // Create map centered on Amherst/UMass
+    var map = L.map('map').setView([42.3912, -72.5267], 13);
 
-L.marker([42.3912, -72.5267]).addTo(map)
-    .bindPopup("UMass Amherst");
+    // Basemap
+    var topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: 'Map data: © OpenStreetMap contributors, SRTM | Style: © OpenTopoMap'
+    }).addTo(map);
 
-L.marker([42.4122, -72.5304]).addTo(map)
-    .bindPopup("Puffers Pond");
+    var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
 
-L.marker([42.3976, -72.5034]).addTo(map)
-    .bindPopup("Amethyst Brook");
+    // Layer groups
+    var campusLayer = L.layerGroup().addTo(map);
+    var parkLayer = L.layerGroup().addTo(map);
+    var trailLayer = L.layerGroup().addTo(map);
+    var waterLayer = L.layerGroup().addTo(map);
 
-</script>
+    // Custom circle marker function
+    function addPoint(lat, lng, title, type, description, group, color) {
+      L.circleMarker([lat, lng], {
+        radius: 8,
+        color: "white",
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.9
+      })
+      .addTo(group)
+      .bindPopup(
+        "<div class='popup-title'>" + title + "</div>" +
+        "<div class='popup-type'>" + type + "</div>" +
+        "<div>" + description + "</div>"
+      );
+    }
+
+    // Campus / start
+    addPoint(
+      42.3912, -72.5267,
+      "UMass Amherst",
+      "Campus / Starting Point",
+      "A central starting point for exploring nearby outdoor spaces around Amherst.",
+      campusLayer,
+      "#2b7bff"
+    );
+
+    addPoint(
+      42.3894, -72.5283,
+      "Campus Pond Area",
+      "Campus Outdoor Space",
+      "A familiar UMass location for short walks and casual outdoor time between classes.",
+      campusLayer,
+      "#2b7bff"
+    );
+
+    // Parks / open spaces
+    addPoint(
+      42.3736, -72.5198,
+      "Groff Park",
+      "Park / Open Space",
+      "A recreational park with open space, trails nearby, and access to outdoor activities.",
+      parkLayer,
+      "#2ca25f"
+    );
+
+    addPoint(
+      42.3765, -72.5195,
+      "Kendrick Park",
+      "Downtown Green Space",
+      "A small but useful green space near downtown Amherst with easy access from town.",
+      parkLayer,
+      "#2ca25f"
+    );
+
+    addPoint(
+      42.3858, -72.5321,
+      "Mill River Recreation Area",
+      "Park / Recreation Area",
+      "A larger recreation area with fields, wooded edges, and walking opportunities.",
+      parkLayer,
+      "#2ca25f"
+    );
+
+    addPoint(
+      42.4038, -72.5314,
+      "Mill River Conservation Area",
+      "Conservation / Open Space",
+      "A quieter natural area near North Amherst with wooded surroundings and local trails.",
+      parkLayer,
+      "#2ca25f"
+    );
+
+    // Trails / conservation
+    addPoint(
+      42.3976, -72.5034,
+      "Amethyst Brook Conservation Area",
+      "Trail / Conservation Area",
+      "A wooded trail area that provides a more natural hiking experience close to Amherst.",
+      trailLayer,
+      "#8856a7"
+    );
+
+    addPoint(
+      42.3759, -72.5130,
+      "Norwottuck Rail Trail Access",
+      "Trail Access",
+      "A paved multi-use trail good for longer walks, biking, and regional connection.",
+      trailLayer,
+      "#8856a7"
+    );
+
+    addPoint(
+      42.3842, -72.4917,
+      "Hampshire College Trails",
+      "Trail / Campus Landscape",
+      "A nearby area with walking routes, open fields, and natural landscape features.",
+      trailLayer,
+      "#8856a7"
+    );
+
+    addPoint(
+      42.3988, -72.4756,
+      "Mount Orient / Pelham Hills Area",
+      "Trail / Natural Area",
+      "A more wooded and scenic outdoor option east of Amherst for longer recreation trips.",
+      trailLayer,
+      "#8856a7"
+    );
+
+    // Water / pond areas
+    addPoint(
+      42.4122, -72.5304,
+      "Puffers Pond",
+      "Waterfront / Pond Area",
+      "A popular pond and trail area in North Amherst with scenic water views and walking routes.",
+      waterLayer,
+      "#2b8cbe"
+    );
+
+    addPoint(
+      42.4083, -72.5171,
+      "Cushman Brook Area",
+      "Water / Natural Area",
+      "A quieter natural area connected to North Amherst’s stream and wooded landscape.",
+      waterLayer,
+      "#2b8cbe"
+    );
+
+    // Add layer controls for interactivity
+    var baseMaps = {
+      "Topographic Map": topoMap,
+      "Street Map": streetMap
+    };
+
+    var overlayMaps = {
+      "Campus / Starting Points": campusLayer,
+      "Parks and Open Spaces": parkLayer,
+      "Trails and Conservation Areas": trailLayer,
+      "Waterfront Areas": waterLayer
+    };
+
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+    // Add scale bar
+    L.control.scale({ imperial: true, metric: true }).addTo(map);
+
+    // Add a circle around UMass to show nearby focus area
+    L.circle([42.3912, -72.5267], {
+      radius: 4000,
+      color: "#444",
+      weight: 1,
+      fillColor: "#999",
+      fillOpacity: 0.08
+    }).addTo(map).bindPopup("Approximate 4 km focus area around UMass Amherst.");
+  </script>
 
 </body>
 </html>
